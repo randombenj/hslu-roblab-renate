@@ -6,6 +6,7 @@ from transitions.extensions import GraphMachine as Machine
 from renate.behaviors.resting import resting
 from renate.behaviors.wakeup import wakeup
 from renate.behaviors.dancing import dancing
+from renate.behaviors.recording import recording
 
 # school room orientations
 SCHOOL_ON_HIS_RIGHT = -1
@@ -16,6 +17,7 @@ class RENATE(object):
     STATES = [
         "start",
         "wakeup",
+        "recording",
         "dancing",
         "resting",
         "error"
@@ -26,25 +28,31 @@ class RENATE(object):
 
         self.state_machine = Machine(model=self, states=self.STATES, queued=True, initial="start")
         self.state_machine.add_transition(
-                trigger="wakeup",
+                trigger="do_wakeup",
                 source=["start", "resting"],
                 dest="wakeup",
                 after=lambda *args, **kwargs: wakeup(self, *args, **kwargs)
         )
         self.state_machine.add_transition(
-                trigger="do_dance",
+                trigger="do_listen",
                 source="wakeup",
+                dest="recording",
+                after=lambda *args, **kwargs: recording(self, *args, **kwargs)
+        )
+        self.state_machine.add_transition(
+                trigger="do_dance",
+                source="recording",
                 dest="dancing",
                 after=lambda *args, **kwargs: dancing(self, *args, **kwargs)
         )
         self.state_machine.add_transition(
-                trigger="rest",
+                trigger="do_rest",
                 source="dancing",
                 dest="resting",
                 after=lambda *args, **kwargs: resting(self, *args, **kwargs)
         )
         self.state_machine.add_transition(
-                trigger="fail",
+                trigger="do_fail",
                 source=self.STATES,
                 dest="error",
                 after=self.__on_error

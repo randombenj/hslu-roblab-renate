@@ -5,6 +5,7 @@ import logging
 from pynaoqi_mate import Robot
 from configuration import PepperConfiguration
 
+from renate.utils import download_file_from_pepper
 from renate.core import RENATE
 
 # configure logging
@@ -19,9 +20,10 @@ def main():
     robot = Robot(config)
 
     renate = RENATE(robot)
-    renate.wakeup()
+    renate.do_wakeup()
+    renate.do_listen()
     renate.do_dance()
-    renate.rest()
+    #renate.do_rest()
 
 
 if __name__ == "__main__":

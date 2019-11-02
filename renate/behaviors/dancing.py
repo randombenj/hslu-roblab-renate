@@ -1,5 +1,8 @@
 import time
+import threading
 import logging
+
+import qi
 
 
 def dancing(renate):
@@ -127,9 +130,11 @@ def dancing(renate):
                  [-0.781907, [3, -0.266667, 0], [3, 0, 0]]])
 
     try:
+        sound_future = qi.async(renate.robot.ALAudioPlayer.playFile, "/home/nao/recording.wav")
         for i in range(2):
             renate.robot.ALMotion.angleInterpolationBezier(names, times, keys)
+        sound_future.wait()
     except Exception as exc:
         fail_reason = "Unable to dance, because: '{}'".format(exc)
         logging.error(fail_reason)
-        renate.fail(reason=fail_reason)
+        renate.do_fail(reason=fail_reason)
