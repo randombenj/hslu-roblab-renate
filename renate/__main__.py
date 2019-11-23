@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import logging
+import argparse
 
 from pynaoqi_mate import Robot
 from configuration import PepperConfiguration
@@ -11,12 +12,9 @@ from renate.core import RENATE
 # configure logging
 logging.basicConfig(level=logging.INFO)
 
-#: Holds the name of the Pepper
-PEPPER_NAME = "Amber"
 
-
-def main():
-    config = PepperConfiguration(PEPPER_NAME)
+def main(pepper_name):
+    config = PepperConfiguration(pepper_name)
     robot = Robot(config)
 
     renate = RENATE(robot)
@@ -27,4 +25,7 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("pepper_name", nargs='?', default="Amber", choices=['Amber', 'Porter'])
+
+    main(parser.parse_args().pepper_name)

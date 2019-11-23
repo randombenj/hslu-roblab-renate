@@ -41,4 +41,6 @@ def upload_file_to_pepper(config, local_path, remote_path):
 def track_beat(file):
     """track the beats in a given file"""
     y, sr = librosa.load(file)
-    return librosa.beat.beat_track(y=y, sr=sr, units='time')  # tempo, beats
+    tempo, beats = librosa.beat.beat_track(y, sr=sr)
+    beat_times = librosa.frames_to_time(beats, sr=sr)
+    return tempo, beat_times, y, sr  # tempo, beats
