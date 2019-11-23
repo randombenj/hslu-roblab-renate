@@ -3,3 +3,4 @@ paramiko
 pygraphviz
 requests
 transitions
+librosa

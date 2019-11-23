@@ -1,6 +1,7 @@
 import math
 import time
 import logging
+import librosa
 import itertools
 
 import paramiko
@@ -36,3 +37,8 @@ def upload_file_to_pepper(config, local_path, remote_path):
     sftp.close()
     ssh.close()
 
+
+def track_beat(file):
+    """track the beats in a given file"""
+    y, sr = librosa.load(file)
+    return librosa.beat.beat_track(y=y, sr=sr, units='time')  # tempo, beats
