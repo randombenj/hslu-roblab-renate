@@ -3,6 +3,8 @@ import logging
 
 from transitions.extensions import GraphMachine as Machine
 
+from renate.tablet_service import TabletService
+
 from renate.behaviors.resting import resting
 from renate.behaviors.wakeup import wakeup
 from renate.behaviors.dancing import dancing
@@ -29,6 +31,9 @@ class RENATE(object):
     def __init__(self, robot):
         self.robot = robot
         self.following = False
+        self.beats = []
+
+        self.tablet = robot.session.service("ALTabletService")
 
         self.state_machine = Machine(model=self, states=self.STATES, queued=True, initial="start")
         self.state_machine.add_transition(
@@ -39,31 +44,31 @@ class RENATE(object):
         )
         self.state_machine.add_transition(
                 trigger="do_start_follow",
-                source="wakeup",
+                source=["wakeup", "recording", "dancing"],
                 dest="start_following",
                 after=lambda *args, **kwargs: start_following(self, *args, **kwargs)
         )
         self.state_machine.add_transition(
                 trigger="do_stop_follow",
-                source="start_following",
+                source=["start_following", "dancing"],
                 dest="stop_following",
                 after=lambda *args, **kwargs: stop_following(self, *args, **kwargs)
         )
         self.state_machine.add_transition(
                 trigger="do_listen",
-                source=["wakeup", "following"],
+                source=["wakeup", "start_following"],
                 dest="recording",
                 after=lambda *args, **kwargs: recording(self, *args, **kwargs)
         )
         self.state_machine.add_transition(
                 trigger="do_dance",
-                source=["recording", "wakeup"],
+                source=["recording", "wakeup", "start_following"],
                 dest="dancing",
                 after=lambda *args, **kwargs: dancing(self, *args, **kwargs)
         )
         self.state_machine.add_transition(
                 trigger="do_rest",
-                source=["dancing", "following"],
+                source=["dancing", "following", "stop_following"],
                 dest="resting",
                 after=lambda *args, **kwargs: resting(self, *args, **kwargs)
         )

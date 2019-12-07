@@ -36,9 +36,12 @@ def __process_audio(renate):
         RECORDING_PATH,
         tmp
     )
+    renate.robot.ALAnimatedSpeech.say("Thinking about good dancemoves now!")
     #tempo, beats, y, sr = track_beat(tmp)
     beats, y, sr = track_accurate_beat(tmp)
     logging.info("got tracking '{}'".format(beats))
+    renate.robot.ALAnimatedSpeech.say("Nearly done, beep beep boop!")
+    renate.beats = beats
     upload_file_to_pepper(
         renate.robot.configuration,
         tmp,
@@ -46,13 +49,13 @@ def __process_audio(renate):
     )
 
 def recording(renate):
-    say = "Give me some music!"
+    say = "Give me some music, then I can show you sick moves!"
     logging.info(say)
     renate.robot.ALAnimatedSpeech.say(say)
 
     __record_audio(renate)
 
-    say = "Okay, I thik that's quite enough! Thinking about good dancemoves now!"
+    say = "Okay, I thik that's quite enough!"
     logging.info(say)
     renate.robot.ALAnimatedSpeech.say(say)
 

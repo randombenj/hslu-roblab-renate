@@ -47,12 +47,11 @@ def start_following(renate):
             target_position = renate.robot.ALTracker.getTargetPosition(2)
             print(target_position)
 
-    thread = threading.Thread(target=track_target_loss, args=[renate])
-    thread.daemon = True
-    thread.start()
+    #thread = threading.Thread(target=track_target_loss, args=[renate])
+    #thread.daemon = True
+    #thread.start()
 
 def stop_following(renate):
-      time.sleep(5)
       logging.info("stop following")
       renate.following = False
       renate.robot.ALTracker.stopTracker()
