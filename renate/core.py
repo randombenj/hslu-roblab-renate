@@ -7,6 +7,7 @@ from renate.behaviors.resting import resting
 from renate.behaviors.wakeup import wakeup
 from renate.behaviors.dancing import dancing
 from renate.behaviors.recording import recording
+from renate.behaviors.follow import start_following, stop_following
 
 # school room orientations
 SCHOOL_ON_HIS_RIGHT = -1
@@ -17,6 +18,8 @@ class RENATE(object):
     STATES = [
         "start",
         "wakeup",
+        "start_following",
+        "stop_following",
         "recording",
         "dancing",
         "resting",
@@ -25,6 +28,7 @@ class RENATE(object):
 
     def __init__(self, robot):
         self.robot = robot
+        self.following = False
 
         self.state_machine = Machine(model=self, states=self.STATES, queued=True, initial="start")
         self.state_machine.add_transition(
@@ -34,8 +38,20 @@ class RENATE(object):
                 after=lambda *args, **kwargs: wakeup(self, *args, **kwargs)
         )
         self.state_machine.add_transition(
-                trigger="do_listen",
+                trigger="do_start_follow",
                 source="wakeup",
+                dest="start_following",
+                after=lambda *args, **kwargs: start_following(self, *args, **kwargs)
+        )
+        self.state_machine.add_transition(
+                trigger="do_stop_follow",
+                source="start_following",
+                dest="stop_following",
+                after=lambda *args, **kwargs: stop_following(self, *args, **kwargs)
+        )
+        self.state_machine.add_transition(
+                trigger="do_listen",
+                source=["wakeup", "following"],
                 dest="recording",
                 after=lambda *args, **kwargs: recording(self, *args, **kwargs)
         )
@@ -47,7 +63,7 @@ class RENATE(object):
         )
         self.state_machine.add_transition(
                 trigger="do_rest",
-                source="dancing",
+                source=["dancing", "following"],
                 dest="resting",
                 after=lambda *args, **kwargs: resting(self, *args, **kwargs)
         )

@@ -7,3 +7,5 @@ def wakeup(renate):
         logging.info(say)
         renate.robot.ALAnimatedSpeech.say(say)
         renate.robot.ALMotion.wakeUp()
+        renate.robot.ALAutonomousLife.setState('interactive')
+        renate.robot.ALRobotPosture.goToPosture("StandInit", 1.0)

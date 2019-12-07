@@ -19,8 +19,10 @@ def main(pepper_name):
 
     renate = RENATE(robot)
     renate.do_wakeup()
-    renate.do_listen()
-    renate.do_dance()
+    renate.do_start_follow()
+    renate.do_stop_follow()
+    #renate.do_listen()
+    #renate.do_dance()
     #renate.do_rest()
 
 
