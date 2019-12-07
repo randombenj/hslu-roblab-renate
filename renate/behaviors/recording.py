@@ -8,6 +8,7 @@ import librosa
 
 from renate.utils import (
     track_beat,
+    track_accurate_beat,
     download_file_from_pepper,
     upload_file_to_pepper
 )
@@ -17,13 +18,14 @@ RECORDING_PATH = "/home/nao/recording.wav"
 
 def __record_audio(renate):
     logging.info("recording audio to: '{}'".format(RECORDING_PATH))
+    renate.robot.ALAudioRecorder.stopMicrophonesRecording()
     renate.robot.ALAudioRecorder.startMicrophonesRecording(
         RECORDING_PATH,
         "wav",
         48000,
         [True, True, True, True]
     )
-    time.sleep(10)
+    time.sleep(30)
     renate.robot.ALAudioRecorder.stopMicrophonesRecording()
 
 def __process_audio(renate):
@@ -34,8 +36,9 @@ def __process_audio(renate):
         RECORDING_PATH,
         tmp
     )
-    tempo, beats, y, sr = track_beat(tmp)
-    logging.info("got beat '{}', tracking '{}'".format(tempo, beats))
+    #tempo, beats, y, sr = track_beat(tmp)
+    beats, y, sr = track_accurate_beat(tmp)
+    logging.info("got tracking '{}'".format(beats))
     upload_file_to_pepper(
         renate.robot.configuration,
         tmp,

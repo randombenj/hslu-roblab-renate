@@ -2,6 +2,7 @@ import math
 import time
 import logging
 import librosa
+import madmom
 import itertools
 
 import paramiko
@@ -44,3 +45,15 @@ def track_beat(file):
     tempo, beats = librosa.beat.beat_track(y, sr=sr)
     beat_times = librosa.frames_to_time(beats, sr=sr)
     return tempo, beat_times, y, sr  # tempo, beats
+
+def track_accurate_beat(file):
+    """track accurate beats with CMM"""
+    logging.info("analyzing audio %s", file)
+    start = time.time()
+    y, sr = librosa.load(file)
+    beat_times = madmom.features.beats.DBNBeatTrackingProcessor(fps=100)(
+        madmom.features.beats.RNNBeatProcessor()(file)
+    )
+    end = time.time()
+    logging.info("analyzing took: %s", end - start)
+    return beat_times, y, sr
