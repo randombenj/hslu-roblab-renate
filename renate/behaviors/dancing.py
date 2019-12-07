@@ -1,9 +1,32 @@
 import time
 import threading
 import logging
+import numpy as np
 
 import qi
 
+data =  [ 0.33,  0.72,  1.13,  1.52,  1.89,  2.3 ,  2.66,  3.02,  3.39,
+        3.76,  4.15,  4.51,  4.88,  5.25,  5.62,  5.98,  6.34,  6.71,
+        7.07,  7.43,  7.8 ,  8.16,  8.52,  8.89,  9.25,  9.61,  9.98,
+       10.34, 10.7 , 11.07, 11.43, 11.8 , 12.16, 12.52, 12.89, 13.25,
+       13.61, 13.98, 14.34, 14.7 , 15.07, 15.43, 15.79, 16.16, 16.52,
+       16.89, 17.25, 17.62, 17.98, 18.34, 18.7 , 19.07, 19.43, 19.8 ,
+       20.16, 20.52, 20.89, 21.25, 21.61, 21.98, 22.34, 22.7 , 23.07,
+       23.43, 23.79, 24.16, 24.52, 24.89, 25.25, 25.61, 25.98, 26.34,
+       26.7 , 27.07, 27.43, 27.8 , 28.16, 28.53, 28.91, 29.32, 29.73]
+
+dist = np.array([j-i for i, j in zip(data[:-1], data[1:])])
+
+
+if dist.mean() <= 0.50:
+    data2 = list()
+    for idx, v in enumerate(data):
+        if idx == 0:
+            continue
+        if idx % 2 == 0:
+            data2.append(v + data[idx-1])
+    del data2[::2]
+    data = data2
 
 def dancing(renate):
     time.sleep(1)
@@ -131,8 +154,16 @@ def dancing(renate):
 
     try:
         sound_future = qi.async(renate.robot.ALAudioPlayer.playFile, "/home/nao/recording.wav")
-        for i in range(2):
-            renate.robot.ALMotion.angleInterpolationBezier(names, times, keys)
+        repetition = int(len(data) / 8)
+        for i in range(repetition):
+            start_index = i * 8
+            new_times = list()
+            for t in times:
+                newt = data[start_index:(start_index+len(t))]
+                newt = [x - newt[0] for x in newt]
+                new_times.append(newt)
+            
+            renate.robot.ALMotion.angleInterpolationBezier(names, new_times, keys)
         sound_future.wait()
     except Exception as exc:
         fail_reason = "Unable to dance, because: '{}'".format(exc)

@@ -7,6 +7,8 @@ def wakeup(renate):
         logging.info(say)
         renate.robot.ALAnimatedSpeech.say(say)
         renate.robot.ALMotion.wakeUp()
+    else:
+        logging.info("I'm soo awake and ready")
 
     renate.robot.ALAutonomousLife.setState('interactive')
     renate.robot.ALRobotPosture.goToPosture("StandInit", 1.0)
@@ -16,4 +18,5 @@ def wakeup(renate):
     renate.robot.ALTextToSpeech.setParameter("doubleVoiceTimeShift", 0.1)
     renate.robot.ALTextToSpeech.setParameter("pitchShift", 1.1)
     #renate.robot.ALTextToSpeech.setVoice("Kenny22Enhanced")
-    renate.robot.ALTextToSpeech.say("fuck!")
+    renate.robot.ALAutonomousLife.setState('interactive')
+    renate.robot.ALRobotPosture.goToPosture("StandInit", 1.0)

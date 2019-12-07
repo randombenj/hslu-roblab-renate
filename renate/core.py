@@ -57,7 +57,7 @@ class RENATE(object):
         )
         self.state_machine.add_transition(
                 trigger="do_dance",
-                source="recording",
+                source=["recording", "wakeup"],
                 dest="dancing",
                 after=lambda *args, **kwargs: dancing(self, *args, **kwargs)
         )
