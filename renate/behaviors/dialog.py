@@ -13,7 +13,7 @@ def dialog(renate):
 
     logging.info("repeat %s", do_repeat)
     if do_repeat:
-        renate.do_dance()
+        renate.do_start_follow()
         return
 
     topic_name = speech_dialog.load_yes_no_question("Do you want me to dance to something else?", "Okay", "Well then")

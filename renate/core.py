@@ -12,6 +12,7 @@ from renate.behaviors.wakeup import wakeup
 from renate.behaviors.dancing import dancing
 from renate.behaviors.recording import recording
 from renate.behaviors.dialog import dialog
+from renate.behaviors.follow import start_following, stop_following
 
 # school room orientations
 SCHOOL_ON_HIS_RIGHT = -1
@@ -23,6 +24,8 @@ class RENATE(object):
         "start",
         "wakeup",
         "recording",
+        "start_following",
+        "stop_following",
         "dancing",
         "dialog",
         "resting",
@@ -33,8 +36,6 @@ class RENATE(object):
         self.robot = robot
         self.following = False
         self.beats = []
-
-        self.tablet = robot.session.service("ALTabletService")
 
         self.state_machine = Machine(model=self, states=self.STATES, queued=True, initial="start")
         self.state_machine.add_transition(
@@ -50,14 +51,26 @@ class RENATE(object):
             after=lambda *args, **kwargs: recording(self, *args, **kwargs)
         )
         self.state_machine.add_transition(
-            trigger="do_dance",
+            trigger="do_start_follow",
             source=["recording", "dialog"],
+            dest="start_following",
+            after=lambda *args, **kwargs: start_following(self, *args, **kwargs)
+        )
+        self.state_machine.add_transition(
+            trigger="do_dance",
+            source=["start_following"],
             dest="dancing",
             after=lambda *args, **kwargs: dancing(self, *args, **kwargs)
         )
         self.state_machine.add_transition(
+            trigger="do_stop_follow",
+            source=["dancing"],
+            dest="stop_following",
+            after=lambda *args, **kwargs: stop_following(self, *args, **kwargs)
+        )
+        self.state_machine.add_transition(
             trigger="do_dialog",
-            source=["dancing", "start"],
+            source=["stop_following"],
             dest="dialog",
             after=lambda *args, **kwargs: dialog(self, *args, **kwargs)
         )

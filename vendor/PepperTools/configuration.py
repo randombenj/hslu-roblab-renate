@@ -16,6 +16,9 @@ class PepperConfiguration(object):
         elif name == "Porter":
             self.Ip = "192.168.1.102"
             self.Password = "i2-p2e3p"
+        elif name == "Pale":
+            self.Ip = "192.168.1.103"
+            self.Password = "i3-p2e3p"
         else:
             self.Ip = ip
             self.Port = port

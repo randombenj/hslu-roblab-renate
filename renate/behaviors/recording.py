@@ -73,5 +73,5 @@ def recording(renate):
 
     __process_audio(renate)
 
-    renate.do_dance()
+    renate.do_start_follow()
 

@@ -27,6 +27,6 @@ def main(pepper_name):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("pepper_name", nargs='?', default="Amber", choices=['Amber', 'Porter'])
+    parser.add_argument("pepper_name", nargs='?', default="Amber", choices=['Amber', 'Porter', 'Pale'])
 
     main(parser.parse_args().pepper_name)

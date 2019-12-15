@@ -173,4 +173,4 @@ def dancing(renate):
         logging.error(fail_reason)
         renate.do_fail(reason=fail_reason)
 
-    renate.do_dialog()
+    renate.do_stop_follow()
