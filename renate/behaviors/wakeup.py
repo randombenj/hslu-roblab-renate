@@ -31,3 +31,5 @@ def wakeup(renate):
     # init robot
     renate.robot.ALRobotPosture.goToPosture("Stand", 1.0)
     renate.robot.ALAnimatedSpeech.say("Hello I am Renate and I am your freestile dance teacher!")
+
+    renate.do_listen()

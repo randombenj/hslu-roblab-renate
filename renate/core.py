@@ -11,7 +11,7 @@ from renate.behaviors.resting import resting
 from renate.behaviors.wakeup import wakeup
 from renate.behaviors.dancing import dancing
 from renate.behaviors.recording import recording
-from renate.behaviors.follow import start_following, stop_following
+from renate.behaviors.dialog import dialog
 
 # school room orientations
 SCHOOL_ON_HIS_RIGHT = -1
@@ -24,6 +24,7 @@ class RENATE(object):
         "wakeup",
         "recording",
         "dancing",
+        "dialog",
         "resting",
         "error"
     ]
@@ -37,34 +38,40 @@ class RENATE(object):
 
         self.state_machine = Machine(model=self, states=self.STATES, queued=True, initial="start")
         self.state_machine.add_transition(
-                trigger="do_wakeup",
-                source=["start", "resting"],
-                dest="wakeup",
-                after=lambda *args, **kwargs: wakeup(self, *args, **kwargs)
+            trigger="do_wakeup",
+            source=["start", "resting"],
+            dest="wakeup",
+            after=lambda *args, **kwargs: wakeup(self, *args, **kwargs)
         )
         self.state_machine.add_transition(
-                trigger="do_listen",
-                source=["wakeup"],
-                dest="recording",
-                after=lambda *args, **kwargs: recording(self, *args, **kwargs)
+            trigger="do_listen",
+            source=["wakeup", "dialog"],
+            dest="recording",
+            after=lambda *args, **kwargs: recording(self, *args, **kwargs)
         )
         self.state_machine.add_transition(
-                trigger="do_dance",
-                source=["recording"],
-                dest="dancing",
-                after=lambda *args, **kwargs: dancing(self, *args, **kwargs)
+            trigger="do_dance",
+            source=["recording", "dialog"],
+            dest="dancing",
+            after=lambda *args, **kwargs: dancing(self, *args, **kwargs)
         )
         self.state_machine.add_transition(
-                trigger="do_rest",
-                source=["dancing"],
-                dest="resting",
-                after=lambda *args, **kwargs: resting(self, *args, **kwargs)
+            trigger="do_dialog",
+            source=["dancing", "start"],
+            dest="dialog",
+            after=lambda *args, **kwargs: dialog(self, *args, **kwargs)
         )
         self.state_machine.add_transition(
-                trigger="do_fail",
-                source=self.STATES,
-                dest="error",
-                after=self.__on_error
+            trigger="do_rest",
+            source=["dialog"],
+            dest="resting",
+            after=lambda *args, **kwargs: resting(self, *args, **kwargs)
+        )
+        self.state_machine.add_transition(
+            trigger="do_fail",
+            source=self.STATES,
+            dest="error",
+            after=self.__on_error
         )
 
     def __on_error(self, reason):

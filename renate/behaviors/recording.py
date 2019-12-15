@@ -3,8 +3,9 @@ import logging
 import tempfile
 import os.path as path
 import librosa
+from random import randrange
 
-
+import qi
 
 from renate.utils import (
     track_beat,
@@ -14,7 +15,6 @@ from renate.utils import (
 )
 
 RECORDING_PATH = "/home/nao/recording.wav"
-
 
 def __record_audio(renate):
     logging.info("recording audio to: '{}'".format(RECORDING_PATH))
@@ -29,6 +29,18 @@ def __record_audio(renate):
     renate.robot.ALAudioRecorder.stopMicrophonesRecording()
 
 def __process_audio(renate):
+    music_taste = [
+        "You do have an iteresting taste of music in deed!",
+        "I have never heared this peace before.",
+        "Hmm not exactly my taste of music but if you like it.",
+        "Is this even music?"
+    ]
+    say_future = qi.async(
+        renate.robot.ALAnimatedSpeech.say,
+        music_taste[randrange(len(music_taste))],
+        delay=1500000 # 1.5 second
+    )
+
     tmp = path.join(tempfile.mkdtemp(), "recording.wav").strip()
     logging.info("saving audio to: '{}'".format(tmp))
     download_file_from_pepper(
@@ -60,4 +72,6 @@ def recording(renate):
     renate.robot.ALAnimatedSpeech.say(say)
 
     __process_audio(renate)
+
+    renate.do_dance()
 
