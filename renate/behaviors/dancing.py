@@ -10,19 +10,21 @@ def calculate_dancemoves(beats):
     data = beats
     dist = np.array([j-i for i, j in zip(data[:-1], data[1:])])
 
+    half_time = False
     mean = dist.mean()
+    logging.info("mean: %s", mean)
     if mean <= 0.50:
-        logging.info("mean %s", mean)
+        half_time = True
         data2 = list()
         for idx, v in enumerate(data):
             if idx == 0:
                 continue
             if idx % 2 == 0:
-                data2.append(v + data[idx-1])
+                data2.append(v) #) + data[idx-1])
         #del data2[::2]
         data = data2
     logging.info("got data %s", data)
-    return data
+    return data, half_time
 
 
 def dancing(renate):
@@ -149,9 +151,11 @@ def dancing(renate):
                  [-1.82387, [3, -0.266667, 0], [3, 0.266667, 0]], [-0.0374316, [3, -0.266667, 0], [3, 0.266667, 0]],
                  [-0.781907, [3, -0.266667, 0], [3, 0, 0]]])
 
-    data = calculate_dancemoves(renate.beats)
+    data, half_time = calculate_dancemoves(renate.beats)
     try:
+        renate.robot.ALAudioPlayer.setMasterVolume(1.0)
         sound_future = qi.async(renate.robot.ALAudioPlayer.playFile, "/home/nao/recording.wav")
+        #rep_devider = 8 if not half_time else 16
         repetition = int(len(data) / 8)
         for i in range(repetition):
             start_index = i * 8
@@ -162,7 +166,7 @@ def dancing(renate):
                 new_times.append(newt)
 
             renate.robot.ALMotion.angleInterpolationBezier(names, new_times, keys)
-        sound_future.wait()
+        renate.robot.ALAudioPlayer.stopAll()
     except Exception as exc:
         fail_reason = "Unable to dance, because: '{}'".format(exc)
         logging.error(fail_reason)

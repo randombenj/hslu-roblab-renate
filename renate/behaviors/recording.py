@@ -36,7 +36,7 @@ def __process_audio(renate):
         RECORDING_PATH,
         tmp
     )
-    renate.robot.ALAnimatedSpeech.say("Thinking about good dancemoves now!")
+    renate.robot.ALAnimatedSpeech.say("Thinking about awesome looking dancemoves now!")
     #tempo, beats, y, sr = track_beat(tmp)
     beats, y, sr = track_accurate_beat(tmp)
     logging.info("got tracking '{}'".format(beats))
