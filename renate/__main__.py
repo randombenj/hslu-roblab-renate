@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import time
 import logging
 import argparse
 
@@ -20,15 +21,10 @@ def main(pepper_name):
     robot = Robot(config)
 
     renate = RENATE(robot)
+
     renate.do_wakeup()
-    #renate.do_stop_follow()
-    #
     renate.do_listen()
-    #renate.do_start_follow()
     renate.do_dance()
-    #renate.do_stop_follow()
-    #renate.do_rest()
-    #renate.do_dance()
     renate.do_rest()
 
 

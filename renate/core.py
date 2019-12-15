@@ -1,4 +1,6 @@
 import sys
+import time
+import threading
 import logging
 
 from transitions.extensions import GraphMachine as Machine
@@ -20,8 +22,6 @@ class RENATE(object):
     STATES = [
         "start",
         "wakeup",
-        "start_following",
-        "stop_following",
         "recording",
         "dancing",
         "resting",
@@ -43,32 +43,20 @@ class RENATE(object):
                 after=lambda *args, **kwargs: wakeup(self, *args, **kwargs)
         )
         self.state_machine.add_transition(
-                trigger="do_start_follow",
-                source=["wakeup", "recording", "dancing"],
-                dest="start_following",
-                after=lambda *args, **kwargs: start_following(self, *args, **kwargs)
-        )
-        self.state_machine.add_transition(
-                trigger="do_stop_follow",
-                source=["start_following", "dancing"],
-                dest="stop_following",
-                after=lambda *args, **kwargs: stop_following(self, *args, **kwargs)
-        )
-        self.state_machine.add_transition(
                 trigger="do_listen",
-                source=["wakeup", "start_following"],
+                source=["wakeup"],
                 dest="recording",
                 after=lambda *args, **kwargs: recording(self, *args, **kwargs)
         )
         self.state_machine.add_transition(
                 trigger="do_dance",
-                source=["recording", "wakeup", "start_following"],
+                source=["recording"],
                 dest="dancing",
                 after=lambda *args, **kwargs: dancing(self, *args, **kwargs)
         )
         self.state_machine.add_transition(
                 trigger="do_rest",
-                source=["dancing", "following", "stop_following"],
+                source=["dancing"],
                 dest="resting",
                 after=lambda *args, **kwargs: resting(self, *args, **kwargs)
         )
@@ -85,8 +73,37 @@ class RENATE(object):
         self.robot.ALAnimatedSpeech.say("I'm confusion and don't know what to do")
         self.robot.ALAnimatedSpeech.say("I think the reason is that {}".format(reason))
 
+    def start_following(self):
+        def follow(renate):
+            """follow"""
+            desired_range = 0.6
+            threshhold = (-0.05, 0.05)
+            while renate.following:
+                time.sleep(0.2)
+                sonar_front = renate.robot.ALMemory.getData(
+                    "Device/SubDeviceList/Platform/Front/Sonar/Sensor/Value")
+                logging.info("Got sonar value of: %f", sonar_front)
+                if sonar_front > 1.2:
+                    logging.info("no object in front")
+                    continue
+
+                distance = sonar_front - desired_range
+                logging.info("distance to target: %s", distance)
+
+                if distance < threshhold[0] or distance > threshhold[1]:
+                    # move toward dancer
+                    logging.info("moving to target")
+                    renate.move(distance, 0)
+
+        self.following = True
+        thread = threading.Thread(target=follow, args=[self])
+        thread.daemon = True
+        thread.start()
+
+    def stop_following(self):
+        self.following = False
+
     def move(self, x, y):
-        # return self.robot.ALNavigation.navigateTo(x, y)
         self.robot.ALMotion.moveTo(x, y, 0)
         return True
 
