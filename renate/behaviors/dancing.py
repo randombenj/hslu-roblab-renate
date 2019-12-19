@@ -12,7 +12,7 @@ def calculate_dancemoves(beats):
 
     half_time = False
     mean = dist.mean()
-    logging.info("mean: %s", mean)
+    logging.info("mean: %s, this is %s bpm", mean, 1/mean*60)
     if mean <= 0.50:
         half_time = True
         data2 = list()
